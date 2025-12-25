@@ -14,23 +14,19 @@ fork(void)
 
 	/* This is a mistake. */
 	c = malloc(sizeof(*c));
-	if (!c)
+	if (_fork(pc, c))
 		return (-1);
-
-	_fork(pc, c);
 
 	/*
  	 * It would be nicer to setup the child's context so that it returns
 	 * straight to work instead of right here.
 	 */
-
-	if (pc != c) {
-		c->pid	= ++pid;
-		c->name	= pc->name;
-		LIST_INSERT_AFTER(pc, c, next);
-	}
-
 	if (pc == c)
 		return (0);
+
+	c->pid	= ++pid;
+	c->name	= pc->name;
+	LIST_INSERT_AFTER(pc, c, next);
+
 	return (c->pid);
 }

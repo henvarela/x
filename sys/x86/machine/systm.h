@@ -3,6 +3,6 @@
 
 #include <sys/proc.h>
 
-void _fork(const struct proc *p, struct proc *c);
+int	_fork(const struct proc *p, struct proc *c);
 
 #endif

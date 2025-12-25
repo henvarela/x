@@ -211,12 +211,14 @@ hand(struct frame *f)
 	}
 }
 
-void
+int
 _fork(const struct proc *p, struct proc *c)
 {
-	/* Update this context. */
-	HLT();
+	if (!(p && c))
+		return (-1);
 
+	/* Fork this context. */
+	HLT();
 	c->p.ctx = p->p.ctx;
 
 	/*
@@ -224,10 +226,12 @@ _fork(const struct proc *p, struct proc *c)
 	 * straight to work instead of right here.
 	 */
 	if (pc == c)
-		return;
+		return (0);
 
 	/* Fork the stack. */
 	c->p.ctx.rsp = (register_t)malloc(PSIZE);
+	if (!c->p.ctx.rsp)
+		return (-1);
 	memcpy((void *)c->p.ctx.rsp, (void *)p->p.ctx.rsp, PSIZE);
 
 	/*
@@ -237,7 +241,11 @@ _fork(const struct proc *p, struct proc *c)
 	 * NOTE: Processes that share all physical memory behave like threads.
 	 */
 	c->p.pm = pmcopy(&kpm);
+	if (!c->p.pm.pt)
+		return (-1);
 	c->p.ctx.cr3 = (register_t)KPADDR(c->p.pm.pt);
+
+	return (0);
 }
 
 void
