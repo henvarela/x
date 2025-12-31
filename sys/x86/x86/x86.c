@@ -229,10 +229,12 @@ _fork(const struct proc *p, struct proc *c)
 		return (0);
 
 	/* Fork the stack. */
-	c->p.ctx.rsp = (register_t)malloc(PSIZE);
+	c->p.ctx.rsp = (register_t)palloc();
 	if (!c->p.ctx.rsp)
 		return (-1);
-	memcpy((void *)c->p.ctx.rsp, (void *)p->p.ctx.rsp, PSIZE);
+	memcpy((void *)(c->p.ctx.rsp += p->p.ctx.rsp & PMASK),
+	       (void *)p->p.ctx.rsp,
+	       PSIZE - (p->p.ctx.rsp & PMASK));
 
 	/*
 	 * Fork the memory address space.
