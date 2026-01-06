@@ -14,14 +14,11 @@ xtoa(size_t x, uint8_t *b)
 }
 
 void
-printf(const char *fmt, ...)
+vprintf(const char *fmt, va_list ap)
 {
-	va_list ap;
 	char c, *s;
 	size_t x;
 	uint8_t buf[17] = { [16] = NULL };
-
-	va_start(ap, fmt);
 
 	while (*fmt) {
 		switch (*fmt) {
@@ -49,6 +46,14 @@ printf(const char *fmt, ...)
 		default: cc->putc(*fmt++);
 		}
 	}
+}
 
+void
+printf(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	vprintf(fmt, ap);
 	va_end(ap);
 }
