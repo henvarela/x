@@ -10,7 +10,7 @@ OBJS=	${SRCS:.S=.o}
 SRCS=	entry.S pmap.c vec.S x86.c\
 	i82489.c vga.c\
 	libx86.S\
-	alloc.c fork.c init.c kern.c printf.c\
+	alloc.c fork.c init.c kern.c panic.c printf.c\
 	libk.c
 OBJS:=	${OBJS:.c=.o}
 

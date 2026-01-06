@@ -6,6 +6,7 @@
 
 pid_t	fork(void);
 void	init(void);
+void	panic(const char *fmt, ...);
 void	printf(const char *fmt, ...);
 void	vprintf(const char *fmt, va_list ap);
 

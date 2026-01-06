@@ -4,6 +4,7 @@
 #include <machine/intr.h>
 #include <machine/param.h>
 #include <machine/pmap.h>
+#include <machine/systm.h>
 #include <machine/trap.h>
 
 #include <sys/alloc.h>
@@ -248,6 +249,13 @@ _fork(const struct proc *p, struct proc *c)
 	c->p.ctx.cr3 = (register_t)KPADDR(c->p.pm.pt);
 
 	return (0);
+}
+
+void
+_panic(void)
+{
+	CLI();
+	HLT();
 }
 
 void
