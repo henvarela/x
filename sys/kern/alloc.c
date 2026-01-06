@@ -3,6 +3,7 @@
 #include <machine/param.h>
 
 #include <sys/alloc.h>
+#include <sys/systm.h>
 
 /*
  * Manage the page frames in the kernel image (usually 2M) for kernel
@@ -33,7 +34,9 @@ palloc(void)
 		return (p->beg);
 	}
 
-	return (NULL);
+	panic("palloc: out of memory");
+
+	return (NULL); /* Make the compiler happy. */
 }
 
 void

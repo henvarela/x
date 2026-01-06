@@ -5,6 +5,8 @@
 #include <machine/param.h>
 #include <machine/pmap.h>
 
+#include <sys/systm.h>
+
 #include <x86/dev/i82489.h>
 
 #include <vm/vm.h>
@@ -19,7 +21,8 @@ static volatile uint32_t *i82489;
 void
 i82489_map(vaddr_t va)
 {
-	i82489 = kpmenter(KPADDR(va));
+	if (!(i82489 = kpmenter(KPADDR(va))))
+		panic("i82489: failed to map %x", va);
 }
 
 void

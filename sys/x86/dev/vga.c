@@ -22,6 +22,7 @@
 #include <machine/pmap.h>
 
 #include <sys/lib.h>
+#include <sys/systm.h>
 #include <sys/types.h>
 
 #include <x86/dev/vga.h>
@@ -45,7 +46,8 @@ clear(void)
 void
 vmap(vaddr_t va)
 {
-	vga = kpmenter(KPADDR(va));
+	if (!(vga = kpmenter(KPADDR(va))))
+		panic("VGA: failed to map %x", va);
 }
 
 void

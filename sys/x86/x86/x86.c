@@ -205,11 +205,8 @@ hand(struct frame *f)
 
 		pic->ack();
 
-	} else { /* panic */
-		printf(tmsg[f->vec]);
-		CLI();
-		HLT();
-	}
+	} else
+		panic("x86: unhandled %s", tmsg[f->vec]);
 }
 
 int
@@ -231,8 +228,6 @@ _fork(const struct proc *p, struct proc *c)
 
 	/* Fork the stack. */
 	c->p.ctx.rsp = (register_t)palloc();
-	if (!c->p.ctx.rsp)
-		return (-1);
 	memcpy((void *)(c->p.ctx.rsp += p->p.ctx.rsp & PMASK),
 	       (void *)p->p.ctx.rsp,
 	       PSIZE - (p->p.ctx.rsp & PMASK));
@@ -244,8 +239,6 @@ _fork(const struct proc *p, struct proc *c)
 	 * NOTE: Processes that share all physical memory behave like threads.
 	 */
 	c->p.pm = pmcopy(&kpm);
-	if (!c->p.pm.pt)
-		return (-1);
 	c->p.ctx.cr3 = (register_t)KPADDR(c->p.pm.pt);
 
 	return (0);

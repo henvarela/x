@@ -60,11 +60,7 @@ pte4(pmap_t *pm, vaddr_t va, vmprot_t _prot)
 	if (!pm->pt)
 		pm->pt = (void *)palloc();
 
-	pt4 = (void *)pm->pt;
-
-	if (!pt4)
-		return (NULL);
-
+	pt4  = (void *)pm->pt;
 	pte  = pt4[PTI4(va)];
 	prot = prots[_prot] | PV;
 
@@ -174,9 +170,6 @@ registmap(pmap_t *pm, vaddr_t va, paddr_t pa, size_t len)
 		return;
 
 	p = malloc(sizeof(*p));
-	if (!p)
-		return;
-
 	*p = (struct map){ .va = va, .pa = pa, .len = len };
 
 	LIST_INSERT_AFTER(&pm->map, p, next);
