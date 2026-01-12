@@ -52,7 +52,7 @@
 
 #define	NOP	 0x90
 #define	INB(s)	 movw $(s),%dx; inb %dx,%al
-#define	OUTB(s, d) movw $(d),%dx; movb $(s),%al; outb %al,%dx
+#define	OUTB(s, d) movw $(d),%dx; movb s,%al; outb %al,%dx
 
 #define	ATA_IO	0x1f0
 #define	ATA_CNT	0x1f2
@@ -143,20 +143,33 @@
 	/*
 	 * Load the kernel from the disk warmed up by the BIOS.
 	 */
-	OUTB(KLEN, ATA_CNT);
-	OUTB(KLBA, ATA_LO);
-	OUTB(KLBA>>8, ATA_MID);
-	OUTB(KLBA>>16, ATA_HI);
-	OUTB(KLBA>>24 + ATA_DEV_FLAGS + ATA_DEV_MASTER, ATA_DEV);
-	OUTB(ATA_STAT_READ, ATA_STAT);
-0:	/* Poll 'til it's ready to load the input data to KPHYS. */
+	movq	$KPHYS,%rdi	/* destination */
+	movq	$KLBA,%rsi	/* source      */
+	movq	$KLEN,%r8	/* length      */
+0:
+	movq	%rsi,%r10;	shrq	$8,%r10
+	movq	%rsi,%r11;	shrq	$16,%r11
+	movq	%rsi,%r12;	shrq	$24,%r12
+	orq	$(ATA_DEV_FLAGS + ATA_DEV_MASTER),%r12
+	OUTB($1,	ATA_CNT);
+	OUTB(%sil,	ATA_LO);
+	OUTB(%r10b,	ATA_MID);
+	OUTB(%r11b,	ATA_HI);
+	OUTB(%r12b,	ATA_DEV);
+	OUTB($ATA_STAT_READ, ATA_STAT);
+1:	/* Poll 'til it's ready to load the input data to KPHYS. */
 	INB(ATA_STAT);
 	andb	$ATA_STAT_BSY,%al
-	jnz	0b
-	movw	$ATA_IO,%dx		/* source      */
-	movq	$KPHYS,%rdi		/* destination */
-	movq	$(KLEN * 512 / 4),%rcx	/* count accordingly to INS' suffix */
+	jnz	1b
+	/* Load a kernel block to memory. */
+	movw	$ATA_IO,%dx
+	movq	$(512 >> 2),%rcx
 	rep	insl
+	/* Do the same thing for the next block. */
+	decq	%r8
+	incq	%rsi
+	cmpq	$0,%r8
+	jne	0b
 
 	/* Yield to the kernel hoping it never RETurns. */
 	movabsq	$KVADDR(KPHYS),%rax

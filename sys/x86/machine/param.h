@@ -15,7 +15,7 @@
 #define	PMASK2		(PSIZE2 - 1)
 
 #define	KLBA		 1
-#define	KLEN		 0xff	/* in blocks */
+#define	KLEN		(KISIZE >> 9)	/* in blocks */
 #define	KSIZE		(KEND - KBEG)
 #define	KISIZE		(PSIZE2 - KPHYS)
 #define	KPHYS		 0x110000
