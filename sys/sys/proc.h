@@ -7,7 +7,7 @@
 
 struct proc {
 	LIST_ENTRY(proc)	 next;
-	struct _proc		 p;
+	struct _proc		 md;
 	pid_t			 pid;
 	const char		*name;
 };

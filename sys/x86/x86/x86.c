@@ -191,7 +191,7 @@ iinit(void)
 static void
 kpinit(void)
 {
-	kp.p.pm = kpm;
+	kp.md.pm = kpm;
 }
 
 void
@@ -199,9 +199,9 @@ hand(struct frame *f)
 {
 	if (f->vec == IPIT) {
 		/* Switch context. */
-		pc->p.ctx = *f;
+		pc->md.ctx = *f;
 		SCHED();
-		*f = pc->p.ctx;
+		*f = pc->md.ctx;
 
 		pic->ack();
 
@@ -217,7 +217,7 @@ _fork(const struct proc *p, struct proc *c)
 
 	/* Fork this context. */
 	HLT();
-	c->p.ctx = p->p.ctx;
+	c->md.ctx = p->md.ctx;
 
 	/*
 	 * It would be nicer to setup the child's context so that it returns
@@ -227,10 +227,10 @@ _fork(const struct proc *p, struct proc *c)
 		return (0);
 
 	/* Fork the stack. */
-	c->p.ctx.rsp = (register_t)palloc();
-	memcpy((void *)(c->p.ctx.rsp += p->p.ctx.rsp & PMASK),
-	       (void *)p->p.ctx.rsp,
-	       PSIZE - (p->p.ctx.rsp & PMASK));
+	c->md.ctx.rsp = (register_t)palloc();
+	memcpy((void *)(c->md.ctx.rsp += p->md.ctx.rsp & PMASK),
+	       (void *)p->md.ctx.rsp,
+	       PSIZE - (p->md.ctx.rsp & PMASK));
 
 	/*
 	 * Fork the memory address space.
@@ -238,8 +238,8 @@ _fork(const struct proc *p, struct proc *c)
 	 * TODO: pmcopy() is not pmfork() XXX
 	 * NOTE: Processes that share all physical memory behave like threads.
 	 */
-	c->p.pm = pmcopy(&kpm);
-	c->p.ctx.cr3 = (register_t)KPADDR(c->p.pm.pt);
+	c->md.pm = pmcopy(&kpm);
+	c->md.ctx.cr3 = (register_t)KPADDR(c->md.pm.pt);
 
 	return (0);
 }
